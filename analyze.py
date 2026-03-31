@@ -5,7 +5,7 @@ from email.mime.text import MIMEText
 from groq import Groq
 
 def analyze_commit(commit_message, files_changed):
-    client = Groq(api_key=os.environ["GROQ_API_KEY"]
+    client = Groq(api_key=os.environ["GROQ_API_KEY"])
     
     chat_completion = client.messages.create(
         messages[
