@@ -7,7 +7,7 @@ from groq import Groq
 def analyze_commit(commit_message, files_changed):
     client = Groq(api_key=os.environ["GROQ_API_KEY"])
     
-    chat_completion = client.messages.create(
+    chat_completion = client.chat.completions.create(
         messages[
             {
                 "role": "user",
