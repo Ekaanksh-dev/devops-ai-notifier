@@ -1,16 +1,14 @@
-import anthropic
 import os
 import sys
 import smtplib
 from email.mime.text import MIMEText
+from groq import Groq
 
 def analyze_commit(commit_message, files_changed):
-    client = anthropic.Anthropic(api_key=os.environ["ANTHROPIC_API_KEY"])
+    client = Groq(api_key=os.environ["GROQ_API_KEY"]
     
-    message = client.messages.create(
-        model="claude-opus-4-20250514",
-        max_tokens=1024,
-        messages=[
+    chat_completion = client.messages.create(
+        messages[
             {
                 "role": "user",
                 "content": f"""Analyze this git commit and respond in exactly this format:
@@ -21,9 +19,10 @@ Summary: [one sentence explanation of what changed]
 Commit message: {commit_message}
 Files changed: {files_changed}"""
             }
-        ]
+        ],
+        model="llama-3.3-70b-versatile",
     )
-    return message.content[0].text
+    return chat_completion.choice[0].message.content
 
 def send_email(analysis, commit_message, files_changed, author, branch, repo):
     sender = os.environ["SENDER_EMAIL"]
