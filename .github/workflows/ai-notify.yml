@@ -61,7 +61,7 @@ jobs:
           python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install groq
+        run: pip install requests
 
       - name: Run AI analysis and send email
         env:
