@@ -12,12 +12,20 @@ jobs:
       files_modified: ${{ steps.changes.outputs.files_modified }}
       files_removed: ${{ steps.changes.outputs.files_removed }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 2
+
       - name: Get changed files
         id: changes
         run: |
-          echo "files_added=${{ join(github.event.head_commit.added, ', ') }}" >> $GITHUB_OUTPUT
-          echo "files_modified=${{ join(github.event.head_commit.modified, ', ') }}" >> $GITHUB_OUTPUT
-          echo "files_removed=${{ join(github.event.head_commit.removed, ', ') }}" >> $GITHUB_OUTPUT
+          ADDED=$(git diff --name-only --diff-filter=A HEAD~1 HEAD | tr '\n' ',' | sed 's/,$//')
+          MODIFIED=$(git diff --name-only --diff-filter=M HEAD~1 HEAD | tr '\n' ',' | sed 's/,$//')
+          REMOVED=$(git diff --name-only --diff-filter=D HEAD~1 HEAD | tr '\n' ',' | sed 's/,$//')
+          echo "files_added=${ADDED:-none}" >> $GITHUB_OUTPUT
+          echo "files_modified=${MODIFIED:-none}" >> $GITHUB_OUTPUT
+          echo "files_removed=${REMOVED:-none}" >> $GITHUB_OUTPUT
 
   call-notifier:
     needs: prepare
