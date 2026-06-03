@@ -1,0 +1,11 @@
+LICENSE
+README.md
+setup.py
+autopwflow/__init__.py
+autopwflow/cli.py
+autopwflow.egg-info/PKG-INFO
+autopwflow.egg-info/SOURCES.txt
+autopwflow.egg-info/dependency_links.txt
+autopwflow.egg-info/entry_points.txt
+autopwflow.egg-info/requires.txt
+autopwflow.egg-info/top_level.txt
