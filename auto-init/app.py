@@ -156,6 +156,9 @@ def webhook():
 
         if owner != GITHUB_USERNAME:
             return jsonify({"message": "Not your repo"}), 200
+        
+        if payload["repository"].get("fork"):
+            return jsonify({"message": "Forked repo, skipping"}), 200
 
         if file_exists(repo_name):
             return jsonify({"message": "Already connected"}), 200

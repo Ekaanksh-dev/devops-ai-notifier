@@ -69,6 +69,7 @@ def get_all_repos():
     url = f"https://api.github.com/users/{GITHUB_USERNAME}/repos?per_page=100"
     response = requests.get(url, headers=HEADERS)
     return response.json()
+    return [r for r in repos if not r.get("fork")]
 
 def file_exists(repo_name):
     url = f"https://api.github.com/repos/{repo_name}/contents/.github/workflows/notify.yml"
@@ -124,6 +125,12 @@ def cmd_add(repo_name):
     """Connect a specific repo to Punk Records"""
     full_name = f"{GITHUB_USERNAME}/{repo_name}"
     print(f"\n🔌 Connecting {full_name}...")
+
+    url = f"https://api.github.com/repos/{full_name}"
+    repo_data = requests.get(url, headers=HEADERS).json()
+    if repo_data.get("fork"):
+        print("⚠️  Skipping — this is a forked repo.")
+        return
 
     if file_exists(full_name):
         print("✅ Already connected!")
