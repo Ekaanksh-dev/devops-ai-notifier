@@ -46,3 +46,15 @@ This account is flagged, and therefore cannot authorize a third party applicatio
 I could still push code and use GitHub completely normally — it only blocked me from connecting third-party stuff, which happened to be exactly what I needed: Render (to host my server) and installing my own GitHub App. No explanation given, no idea how long it'd last.
 
 **What I did:** Couldn't fix this with code, so I stopped waiting on it. Built a simple command (`autopwflow add <repo>`) that does the same job manually — connect a repo in one command — so the whole project didn't depend on this working. Once the flag lifted on its own, I tested the automatic version again and it worked perfectly.
+
+---
+
+## 6. Auto-init was pushing notify.yml into forked repos
+
+When a repo is forked, GitHub fires a `repository.created` event — same as when you create a brand new repo from scratch. The auto-init server and the CLI had no way to tell the difference, so both would happily push `notify.yml` into a forked repo, which is wrong on two levels: it's modifying a repo you didn't intend to connect, and it'd start sending you notifications for commits you didn't make.
+
+GitHub's repository payload includes a `fork` field that's `true` for forks. Added a check for it in both places:
+
+In `app.py` — skip the repo entirely if `payload["repository"].get("fork")` is true.
+
+In `cli.py` — added a fork check to `cmd_add()` that hits the GitHub API before doing anything, and filtered forks out of `get_all_repos()` so `status`, `list`, and `update` ignore them automatically.
