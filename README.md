@@ -116,6 +116,7 @@ Commands:
 
 ```bash
 autopwflow add <repo>     Connect a specific repository
+autopwflow detach <repo>    Remove Punk Records from a repo (asks about secrets too)
 autopwflow update         Push the latest notify.yml to all connected repos
 autopwflow status         Show connected vs. unconnected repositories
 autopwflow list           List all repositories currently being watched
