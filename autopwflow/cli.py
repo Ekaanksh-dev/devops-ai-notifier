@@ -143,6 +143,46 @@ def cmd_add(repo_name):
     push_all_secrets(full_name)
     print(f"\n🎛️ {full_name} is now connected to Punk Records!")
 
+def cmd_detach(repo_name):
+    """Remove Punk Records notifier from a repo"""
+    full_name = f"{GITHUB_USERNAME}/{repo_name}"
+    print(f"\n🔌 Detaching {full_name}...")
+
+    # Get file SHA first (required to delete via GitHub API)
+    url      = f"https://api.github.com/repos/{full_name}/contents/.github/workflows/notify.yml"
+    response = requests.get(url, headers=HEADERS)
+
+    if response.status_code == 404:
+        print("⚠️  notify.yml not found — repo may not be connected.")
+        return
+
+    sha = response.json().get("sha")
+
+    # Delete the file
+    data = {
+        "message": "chore: remove Punk Records notifier",
+        "sha": sha
+    }
+    response = requests.delete(url, headers=HEADERS, json=data)
+
+    if response.status_code == 200:
+        print(f"✅ notify.yml removed from {full_name}")
+    else:
+        print(f"❌ Failed to remove notify.yml — {response.status_code}")
+        return
+
+    # Ask about secrets
+    confirm = input("Remove secrets too? (y/n): ").strip().lower()
+    if confirm == "y":
+        secret_names = ["GROQ_API_KEY", "SENDER_EMAIL", "SENDER_PASSWORD", "RECEIVER_EMAIL"]
+        for secret in secret_names:
+            url      = f"https://api.github.com/repos/{full_name}/actions/secrets/{secret}"
+            response = requests.delete(url, headers=HEADERS)
+            ok       = response.status_code == 204
+            print(f"  {'✅' if ok else '❌'} {secret}")
+
+    print(f"\n🎛️ {full_name} detached from Punk Records.")
+
 def cmd_update():
     """Push latest notify.yml to ALL connected repos"""
     repos = get_all_repos()
@@ -223,6 +263,7 @@ Commands:
   autopwflow update       Push latest notify.yml to all connected repos
   autopwflow status       Show connected vs not connected repos
   autopwflow list         List all watched repos
+  autopwflow detach <repo>  Remove Punk Records notifier from a repo
   autopwflow secrets-all  add the secrets/updates the secrets  
   autopwflow help         Show this message
 """)
@@ -245,6 +286,11 @@ def main():
         cmd_status()
     elif args[0] == "list":
         cmd_list()
+    elif args[0] == "detach":
+        if len(args) < 2:
+            print("❌ Usage: autopwflow detach <repo-name>")
+        else:
+            cmd_detach(args[1])
     elif args[0] == "secrets-all":
         cmd_secrets_all()
     else:
